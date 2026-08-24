@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 const SLIDES = [
@@ -104,7 +104,6 @@ const CONFIG = {
 
 export default function Slider() {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -229,7 +228,6 @@ export default function Slider() {
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("touchcancel", onTouchEnd, { passive: true });
 
-    let lastActive = -1;
     let lensAmt = 0; // eased lens strength, trails the speed smoothly
     let raf = 0;
 
@@ -280,15 +278,6 @@ export default function Slider() {
         p.uniforms.uLensR.value = lensR;
       }
 
-      /* label: the slide sitting closest to the viewport center */
-      const idx =
-        ((Math.round(current / step) % SLIDES.length) + SLIDES.length) %
-        SLIDES.length;
-      if (idx !== lastActive) {
-        lastActive = idx;
-        setActive(idx);
-      }
-
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };
@@ -315,17 +304,6 @@ export default function Slider() {
   return (
     <section className="relative h-screen w-full touch-none overflow-hidden overscroll-none bg-[#191919] font-sans text-white">
       <div ref={mountRef} className="absolute inset-0" />
-
-      {/* side labels */}
-      <div className="pointer-events-none absolute inset-x-5 top-1/2 z-10 flex -translate-y-1/2 items-center justify-between text-[15px]">
-        <span className="flex items-center gap-1.5 font-medium">
-          Slide {active + 1} <span className="text-[13px]">&#8599;</span>
-        </span>
-        <span className="text-white/50">
-          {String(active + 1).padStart(2, "0")} /{" "}
-          {String(SLIDES.length).padStart(2, "0")}
-        </span>
-      </div>
     </section>
   );
 }
